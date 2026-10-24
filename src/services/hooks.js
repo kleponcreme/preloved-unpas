@@ -99,9 +99,11 @@ export function useIsiKeranjang() {
 
 export function useKeranjang() {
   const isi = useIsiKeranjang();
-  const produk = useDocuments('products', isi.data.map((i) => i.productId));
-  return {
-    loading: isi.loading,
+ const ids = isi.data.map((i) => i.productId);
+const produk = useDocuments('products', ids);
+const menungguProduk = ids.some((id) => produk[id] === undefined);
+return {
+loading: isi.loading || menungguProduk,
     items: isi.data.map((i) => ({ ...i, produk: produk[i.productId] })),
   };
 }
