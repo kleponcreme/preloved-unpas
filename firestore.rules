@@ -1,0 +1,99 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() { return request.auth != null; }
+    function isAdmin() { return signedIn() && request.auth.token.admin == true; }
+    function verified() {
+      return signedIn() &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.statusVerifikasi == 'terverifikasi';
+    }
+    function onlyChanges(keys) {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(keys);
+    }
+
+    // Data privat akun (NPM, status verifikasi)
+    match /users/{uid} {
+      allow read: if request.auth.uid == uid || isAdmin();
+      allow create: if request.auth.uid == uid
+        && request.resource.data.statusVerifikasi == 'menunggu';
+      allow update: if isAdmin()
+        || (request.auth.uid == uid
+            && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['statusVerifikasi', 'npm', 'promoDipakai']));
+    }
+
+    // Profil yang dilihat sesama mahasiswa terverifikasi (termasuk nomor WhatsApp)
+    match /profiles/{uid} {
+      allow read: if request.auth.uid == uid || verified() || isAdmin();
+      // Rating dan jumlah terjual hanya diubah server
+      allow create: if request.auth.uid == uid
+        && !request.resource.data.keys().hasAny(['terjual', 'ratingTotal', 'ratingJumlah']);
+      allow update: if request.auth.uid == uid
+        && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['terjual', 'ratingTotal', 'ratingJumlah']);
+    }
+
+    // Lokasi foto KTM (di Netlify Blobs), hanya pemilik dan admin
+    match /verifications/{uid} {
+      allow read: if request.auth.uid == uid || isAdmin();
+      allow create: if request.auth.uid == uid;
+      allow update, delete: if isAdmin();
+    }
+
+    match /products/{id} {
+      allow read: if resource.data.status == 'tayang' || isAdmin()
+        || (signedIn() && resource.data.penjualId == request.auth.uid);
+      allow create: if verified()
+        && request.resource.data.penjualId == request.auth.uid
+        && request.resource.data.status == 'moderasi'
+        && request.resource.data.harga is int && request.resource.data.harga > 0
+        && request.resource.data.stok is int && request.resource.data.stok > 0;
+      allow update: if isAdmin()
+        || (verified() && resource.data.penjualId == request.auth.uid
+            && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['status', 'penjualId', 'stok']));
+      allow delete: if isAdmin() || (signedIn() && resource.data.penjualId == request.auth.uid);
+    }
+
+    match /offers/{id} {
+      allow read: if signedIn()
+        && (resource.data.pembeliId == request.auth.uid || resource.data.penjualId == request.auth.uid);
+      allow create: if verified()
+        && request.resource.data.pembeliId == request.auth.uid
+        && request.resource.data.status == 'menunggu'
+        && request.resource.data.penjualId == get(/databases/$(database)/documents/products/$(request.resource.data.productId)).data.penjualId
+        && request.resource.data.penjualId != request.auth.uid;
+      // Penjual menjawab tawaran
+      allow update: if signedIn() && resource.data.penjualId == request.auth.uid
+        && resource.data.status == 'menunggu'
+        && request.resource.data.status in ['diterima', 'ditolak', 'harga_balik']
+        && onlyChanges(['status', 'hargaBalik']);
+      // Pembeli menjawab harga balik
+      allow update: if signedIn() && resource.data.pembeliId == request.auth.uid
+        && resource.data.status == 'harga_balik'
+        && request.resource.data.status in ['diterima', 'ditolak']
+        && onlyChanges(['status']);
+    }
+
+    match /carts/{uid}/items/{itemId} {
+      allow read, write: if verified() && request.auth.uid == uid;
+    }
+
+    // Pengaturan aplikasi (QRIS admin, lokasi Titik Temu): dibaca semua, diubah admin
+    match /settings/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Pembayaran QRIS ke admin, hanya diubah oleh Netlify Functions
+    match /payments/{id} {
+      allow read: if signedIn() && (resource.data.pembeliId == request.auth.uid || isAdmin());
+      allow write: if false;
+    }
+
+    // Pesanan hanya dibuat dan diubah oleh Netlify Functions (Admin SDK)
+    match /orders/{id} {
+      allow read: if signedIn() && (resource.data.pembeliId == request.auth.uid
+        || resource.data.penjualId == request.auth.uid || isAdmin());
+      allow write: if false;
+    }
+  }
+}

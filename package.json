@@ -1,0 +1,25 @@
+{
+  "name": "preloved-unpas",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Marketplace barang bekas khusus mahasiswa FISIP Unpas Kampus Lengkong",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "dev:netlify": "netlify dev"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.28.0",
+    "firebase": "^11.0.2",
+    "firebase-admin": "^12.7.0",
+    "@netlify/blobs": "^8.1.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.4",
+    "vite": "^5.4.11"
+  }
+}
