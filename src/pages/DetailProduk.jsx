@@ -122,7 +122,10 @@ export default function DetailProduk() {
       </main>
 
       {milikSaya ? (
-        <div className="actionbar"><Link className="btn dark grow" to="/lapak">Kelola di Lapak saya</Link></div>
+        <div className="actionbar">
+          {p.status !== 'terjual' && <Link className="btn ghost grow" to={`/lapak/edit/${p.id}`}>Edit barang</Link>}
+          <Link className="btn dark grow" to="/lapak">Kelola di Lapak saya</Link>
+        </div>
       ) : (
         <div className="actionbar">
           <button className="btn sq waout" onClick={() => perluAkun(() => setSheet('wa'))} aria-label="Chat penjual di WhatsApp"><Icon.Wa /></button>

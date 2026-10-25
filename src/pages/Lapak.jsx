@@ -102,7 +102,10 @@ export default function Lapak() {
                     <b className="navy">{rp(p.harga)}</b>
                     <span className="meta">{p.status === 'moderasi' ? 'Dicek admin, biasanya kurang dari 1x24 jam' : `Stok ${p.stok}`}</span>
                     {['moderasi', 'tayang', 'ditolak'].includes(p.status) && (
-                      <button className="link red" onClick={() => window.confirm(`Hapus iklan “${p.judul}”?`) && jalankan(() => hapusIklan(p), 'Iklan dihapus')}>Hapus iklan</button>
+                      <div className="btnrow-inline" style={{ justifyContent: 'flex-start' }}>
+                        <Link className="link" to={`/lapak/edit/${p.id}`}>Edit barang</Link>
+                        <button className="link red" onClick={() => window.confirm(`Hapus iklan “${p.judul}”?`) && jalankan(() => hapusIklan(p), 'Iklan dihapus')}>Hapus iklan</button>
+                      </div>
                     )}
                   </div>
                 </div>

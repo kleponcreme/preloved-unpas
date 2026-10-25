@@ -150,6 +150,46 @@ export async function pasangBarang(data, files, akun) {
   return id;
 }
 
+// Penjual mengedit barangnya. Kalau yang berubah hanya harga atau opsi nego, barang tetap tayang.
+// Kalau foto, nama, deskripsi, kategori, kondisi, atau usia pakai berubah, barang dicek ulang admin.
+export async function ubahBarang(produk, data, foto) {
+  if (!foto.length) throw new Error('Sisakan minimal 1 foto barang.');
+  if (!data.judul.trim()) throw new Error('Isi nama barang.');
+  if (!data.harga) throw new Error('Isi harga barang.');
+  if (produk.status === 'terjual') throw new Error('Barang yang sudah terjual tidak bisa diedit.');
+  const urls = [];
+  const keys = [];
+  for (const f of foto) {
+    if (f.jenis === 'lama') {
+      urls.push(f.url);
+      keys.push(f.key);
+    } else {
+      const { key } = await unggahFoto('produk', f.blob);
+      urls.push(fotoUrl(key));
+      keys.push(key);
+    }
+  }
+  const isi = {
+    judul: data.judul.trim(),
+    kategori: data.kategori,
+    kondisi: data.kondisi,
+    harga: data.harga,
+    bisaNego: data.bisaNego,
+    usiaPakai: data.usiaPakai.trim(),
+    deskripsi: data.deskripsi.trim(),
+    foto: urls,
+    fotoPath: keys,
+  };
+  const sama = (a, b) => JSON.stringify(a ?? '') === JSON.stringify(b ?? '');
+  const isiBerubah = ['judul', 'kategori', 'kondisi', 'usiaPakai', 'deskripsi', 'fotoPath'].some((k) => !sama(isi[k], produk[k]));
+  const patch = { ...isi, diubah: serverTimestamp() };
+  if (isiBerubah && produk.status !== 'moderasi') patch.status = 'moderasi';
+  await updateDoc(doc(db, 'products', produk.id), patch);
+  const dibuang = (produk.fotoPath ?? []).filter((k) => !keys.includes(k));
+  await Promise.all(dibuang.map((k) => hapusFoto(k)));
+  return { perluModerasi: patch.status === 'moderasi' };
+}
+
 export async function hapusIklan(produk) {
   await deleteDoc(doc(db, 'products', produk.id));
   await Promise.all((produk.fotoPath ?? []).map((p) => hapusFoto(p)));

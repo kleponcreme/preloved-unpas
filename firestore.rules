@@ -47,9 +47,13 @@ service cloud.firestore {
         && request.resource.data.status == 'moderasi'
         && request.resource.data.harga is int && request.resource.data.harga > 0
         && request.resource.data.stok is int && request.resource.data.stok > 0;
+      // Penjual boleh mengedit barangnya sendiri (kecuali stok); status hanya boleh kembali ke moderasi
       allow update: if isAdmin()
         || (verified() && resource.data.penjualId == request.auth.uid
-            && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['status', 'penjualId', 'stok']));
+            && resource.data.status != 'terjual'
+            && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['penjualId', 'stok'])
+            && (request.resource.data.status == resource.data.status || request.resource.data.status == 'moderasi')
+            && request.resource.data.harga is int && request.resource.data.harga > 0);
       allow delete: if isAdmin() || (signedIn() && resource.data.penjualId == request.auth.uid);
     }
 

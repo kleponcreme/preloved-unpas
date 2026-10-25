@@ -37,6 +37,7 @@ export default function App() {
         <Route path="/bayar/:id" element={<Wajib verified={false}><Pembayaran /></Wajib>} />
         <Route path="/lapak" element={<Wajib><Lapak /></Wajib>} />
         <Route path="/lapak/jual" element={<Wajib><JualBarang /></Wajib>} />
+        <Route path="/lapak/edit/:id" element={<Wajib><JualBarang /></Wajib>} />
         <Route path="/admin" element={<Wajib admin><Admin /></Wajib>} />
 
         <Route path="*" element={<NotFound />} />
