@@ -124,7 +124,7 @@ a { color: #1f5fbf; }
 .grow { flex: 1; min-width: 0; }
 .btnrow { display: flex; gap: 8px; flex-wrap: wrap; }
 .btnrow .btn { flex: 1; min-width: 0; }
-.btnrow-inline { display: flex; gap: 14px; }
+.btnrow-inline { display: flex; gap: 6px 14px; flex-wrap: wrap; justify-content: center; }
 .link { border: 0; background: none; color: #1f5fbf; font-weight: 700; font-size: 13px; padding: 6px 0; min-height: 32px; text-decoration: none; align-self: flex-start; display: inline-flex; align-items: center; }
 .link.red { color: var(--danger); }
 .center-self { align-self: center; }

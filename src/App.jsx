@@ -1,6 +1,7 @@
 import { Routes, Route } from 'react-router-dom';
 import { firebaseSiap } from './services/firebase';
 import Wajib from './components/Wajib';
+import Notifier from './components/Notifier';
 import SetupFirebase from './components/SetupFirebase';
 import Beranda from './pages/Beranda';
 import DetailProduk from './pages/DetailProduk';
@@ -20,6 +21,7 @@ export default function App() {
   if (!firebaseSiap) return <div className="app"><SetupFirebase /></div>;
   return (
     <div className="app">
+      <Notifier />
       <Routes>
         {/* Bisa dibuka tanpa login */}
         <Route path="/" element={<Beranda />} />

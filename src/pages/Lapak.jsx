@@ -17,6 +17,7 @@ import Sheet from '../components/Sheet';
 import WhatsAppSheet from '../components/WhatsAppSheet';
 import { Icon } from '../components/Icons';
 import { useToast } from '../components/Toast';
+import { bunyi, bunyiAktif, aturBunyi } from '../lib/bunyi';
 
 const STATUS_IKLAN = { tayang: ['Tayang', 'done'], moderasi: ['Menunggu moderasi', 'wait'], terjual: ['Terjual', ''], ditolak: ['Ditolak admin', ''] };
 
@@ -28,6 +29,7 @@ export default function Lapak() {
   const [counter, setCounter] = useState(null);
   const [rekening, setRekening] = useState(false);
   const [chat, setChat] = useState(null);
+  const [suara, setSuara] = useState(bunyiAktif());
 
   const iklan = useIklanSaya();
   const tawaran = useTawaranMasuk();
@@ -183,6 +185,7 @@ export default function Lapak() {
 
           <div className="btnrow-inline center-self">
             <button className="link" onClick={() => setRekening(true)}>Rekening pencairan</button>
+            <button className="link" onClick={() => { const n = !suara; aturBunyi(n); setSuara(n); if (n) bunyi(); toast(n ? 'Bunyi notifikasi dinyalakan' : 'Bunyi notifikasi dimatikan'); }}>Bunyi: {suara ? 'Nyala' : 'Mati'}</button>
             {admin && <Link className="link" to="/admin">Halaman admin</Link>}
             <button className="link muted" onClick={keluar}>Keluar</button>
           </div>
