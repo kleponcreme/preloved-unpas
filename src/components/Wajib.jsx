@@ -30,7 +30,7 @@ export function MenungguVerifikasi() {
           judul={ditolak ? 'Verifikasi ditolak' : akun ? 'Akunmu sedang diverifikasi' : 'Menyiapkan akunmu…'}
           teks={
             ditolak
-              ? 'Data KTM tidak sesuai atau bukan mahasiswa FISIP Kampus Lengkong. Hubungi admin Preloved Unpas jika ini keliru.'
+              ? 'Data KTM tidak sesuai atau bukan mahasiswa FISIP Kampus Lengkong. Hubungi admin RE:LOOP jika ini keliru.'
               : 'Admin sedang mengecek KTM-mu, biasanya kurang dari 1x24 jam. Sementara itu kamu tetap bisa melihat katalog.'
           }
         >

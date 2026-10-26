@@ -38,7 +38,7 @@ export default function Daftar() {
       <AppBar title="Daftar akun" fallback="/masuk" />
       <main className="scroll">
         <form className="wrap" onSubmit={kirim}>
-          <div className="note b"><Icon.Shield /><span>Preloved Unpas khusus mahasiswa <b>FISIP Kampus Lengkong</b>. Akun diverifikasi admin dari foto KTM sebelum bisa jual-beli.</span></div>
+          <div className="note b"><Icon.Shield /><span>RE:LOOP khusus mahasiswa <b>FISIP Kampus Lengkong</b>. Akun diverifikasi admin dari foto KTM sebelum bisa jual-beli.</span></div>
           <div className="card card-b stack lg">
             <label className="field"><span className="flabel">Nama lengkap</span><input className="input" required value={f.nama} onChange={ubah('nama')} autoComplete="name" /></label>
             <label className="field"><span className="flabel">NPM</span><input className="input" required value={f.npm} onChange={ubah('npm')} inputMode="numeric" /></label>
@@ -60,7 +60,7 @@ export default function Daftar() {
             </label>
           </div>
           <label className="switch" style={{ fontWeight: 500 }}>
-            <span>Saya setuju dengan Syarat &amp; Ketentuan dan Kebijakan Privasi Preloved Unpas.</span>
+            <span>Saya setuju dengan <Link to="/syarat" target="_blank">Syarat &amp; Ketentuan</Link> dan <Link to="/privasi" target="_blank">Kebijakan Privasi</Link> RE:LOOP.</span>
             <input type="checkbox" checked={setuju} onChange={(e) => setSetuju(e.target.checked)} />
           </label>
           {error && <p className="err">{error}</p>}

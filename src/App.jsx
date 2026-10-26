@@ -2,6 +2,7 @@ import { Routes, Route } from 'react-router-dom';
 import { firebaseSiap } from './services/firebase';
 import Wajib from './components/Wajib';
 import Notifier from './components/Notifier';
+import { SyaratKetentuan, KebijakanPrivasi } from './pages/Kebijakan';
 import SetupFirebase from './components/SetupFirebase';
 import Beranda from './pages/Beranda';
 import DetailProduk from './pages/DetailProduk';
@@ -28,6 +29,8 @@ export default function App() {
         <Route path="/produk/:id" element={<DetailProduk />} />
         <Route path="/masuk" element={<Masuk />} />
         <Route path="/daftar" element={<Daftar />} />
+        <Route path="/syarat" element={<SyaratKetentuan />} />
+        <Route path="/privasi" element={<KebijakanPrivasi />} />
 
         {/* Wajib login dan terverifikasi */}
         <Route path="/keranjang" element={<Wajib><Keranjang /></Wajib>} />

@@ -30,6 +30,8 @@ export default function JualBarang() {
   const [kondisi, setKondisi] = useState('Baik');
   const [harga, setHarga] = useState('');
   const [bisaNego, setBisaNego] = useState(true);
+  const [bolehCod, setBolehCod] = useState(true);
+  const [ajukanPaket, setAjukanPaket] = useState(false);
   const [stok, setStok] = useState(1);
   const [usiaPakai, setUsiaPakai] = useState('');
   const [deskripsi, setDeskripsi] = useState('');
@@ -47,6 +49,8 @@ export default function JualBarang() {
     setKondisi(lama.kondisi ?? 'Baik');
     setHarga(formatRibuan(lama.harga ?? ''));
     setBisaNego(Boolean(lama.bisaNego));
+    setBolehCod(lama.bolehCod !== false);
+    setAjukanPaket(Boolean(lama.ajukanPaket));
     setStok(lama.stok ?? 1);
     setUsiaPakai(lama.usiaPakai ?? '');
     setDeskripsi(lama.deskripsi ?? '');
@@ -59,6 +63,16 @@ export default function JualBarang() {
 
   if (edit && loading) return <><AppBar title="Edit barang" fallback="/lapak" /><main className="scroll"><Loading /></main></>;
   if (edit && (!lama || lama.penjualId !== user?.uid)) return <NotFound judul="Barang tidak ditemukan" teks="Barang ini tidak ada atau bukan milikmu." />;
+  if (akun?.ditangguhkan) {
+    return (
+      <>
+        <AppBar title={edit ? 'Edit barang' : 'Jual barang'} fallback="/lapak" />
+        <main className="scroll"><div className="wrap">
+          <div className="note no"><span><b>Lapakmu sedang ditangguhkan</b> karena utang komisi COD {rp(akun.utangKomisi || 0)}. Lunasi dulu lewat QRIS admin (lihat Lapak saya), lalu kamu bisa memasang dan mengedit barang lagi.</span></div>
+        </div></main>
+      </>
+    );
+  }
 
   async function tambahFoto(e) {
     const dipilih = [...e.target.files].slice(0, APP.maksFoto - foto.length);
@@ -80,7 +94,7 @@ export default function JualBarang() {
   async function kirim() {
     setError('');
     setProses(true);
-    const data = { judul, kategori, kondisi, harga: angka(harga), bisaNego, stok, usiaPakai, deskripsi };
+    const data = { judul, kategori, kondisi, harga: angka(harga), bisaNego, bolehCod, ajukanPaket, stok, usiaPakai, deskripsi };
     try {
       if (edit) {
         const { perluModerasi } = await ubahBarang(lama, data, foto);
@@ -129,6 +143,10 @@ export default function JualBarang() {
               <div className="money small"><span>Rp</span><input id="harga" inputMode="numeric" value={harga} onChange={(e) => setHarga(formatRibuan(e.target.value))} placeholder="0" /></div>
             </div>
             <label className="switch">Pembeli boleh nego harga<input type="checkbox" checked={bisaNego} onChange={(e) => setBisaNego(e.target.checked)} /></label>
+            <label className="switch">Terima pembayaran tunai (COD)<input type="checkbox" checked={bolehCod} onChange={(e) => setBolehCod(e.target.checked)} /></label>
+            <span className="meta">QRIS selalu tersedia. Pilihan COD perlu disetujui admin saat moderasi.</span>
+            <label className="switch">Ajukan ke Paket Maba FISIP<input type="checkbox" checked={ajukanPaket} onChange={(e) => setAjukanPaket(e.target.checked)} /></label>
+            <span className="meta">Cocok untuk perlengkapan kos dan buku kuliah yang dibutuhkan mahasiswa baru. Admin yang memutuskan.</span>
             <div className="two">
               <label className="field"><span className="flabel">Stok</span><input className="input" type="number" min="1" max="99" value={stok} onChange={(e) => setStok(e.target.value)} disabled={edit} /></label>
               <label className="field"><span className="flabel">Usia pakai</span><input className="input" value={usiaPakai} onChange={(e) => setUsiaPakai(e.target.value)} placeholder="Contoh: 1 tahun" /></label>

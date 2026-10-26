@@ -45,7 +45,7 @@ export default function Masuk() {
       <AppBar title="Masuk" />
       <main className="scroll">
         <form className="wrap" onSubmit={kirim}>
-          <div className="brand-hero"><Icon.Logo /><div><b>Preloved Unpas</b><span className="meta">Khusus mahasiswa FISIP Kampus Lengkong</span></div></div>
+          <div className="brand-hero"><Icon.Logo /><div><b>RE:LOOP</b><span className="meta">Khusus mahasiswa FISIP Kampus Lengkong</span></div></div>
           <div className="card card-b stack lg">
             <label className="field"><span className="flabel">Email</span><input className="input" type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} /></label>
             <label className="field"><span className="flabel">Password</span><input className="input" type="password" autoComplete="current-password" required value={password} onChange={(e) => setPassword(e.target.value)} /></label>

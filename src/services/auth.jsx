@@ -36,6 +36,7 @@ export function AuthProvider({ children }) {
       setAkun(user === null ? null : undefined);
       return undefined;
     }
+    import('./api').then((m) => m.pindahkanWhatsapp(user.uid)).catch(() => {});
     return onSnapshot(
       doc(db, 'users', user.uid),
       (s) => setAkun(s.exists() ? { id: s.id, ...s.data() } : null),

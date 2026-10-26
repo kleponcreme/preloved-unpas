@@ -92,7 +92,7 @@ export default function Pembayaran() {
                 <div className="bigprice" style={{ fontSize: 30 }}>{rp(pay.total)}</div>
                 <div className="meta">No. pesanan {pay.kode}</div>
               </div>
-              <div className="qr"><img src={qrisGambar} alt="QRIS admin Preloved Unpas" width="220" style={{ height: 'auto', display: 'block' }} /></div>
+              <div className="qr"><img src={qrisGambar} alt="QRIS admin RE:LOOP" width="220" style={{ height: 'auto', display: 'block' }} /></div>
               <span className="desc small">Scan dengan e-wallet atau m-banking apa pun. Penerima: <b>{qrisPenerima}</b></span>
               <div className="note y left">
                 <span>Masukkan nominal <b>tepat {rp(pay.total)}</b>. Tiga digit terakhir ({pay.kodeUnik}) adalah kode unik supaya pembayaranmu mudah dikenali.</span>
@@ -149,7 +149,7 @@ export default function Pembayaran() {
               );
             })}
             <div className="sum"><span>Barang dan ongkir</span><span>{rp(pay.barang)}</span></div>
-            <div className="sum"><span>Biaya layanan</span><span>{rp(pay.biayaLayanan)}</span></div>
+            {pay.biayaLayanan > 0 && <div className="sum"><span>Biaya layanan</span><span>{rp(pay.biayaLayanan)}</span></div>}
             {pay.promo > 0 && <div className="sum"><span>Promo Pembeli Pertama</span><span className="green">−{rp(pay.promo)}</span></div>}
             <div className="sum"><span>Kode unik</span><span>{rp(pay.kodeUnik)}</span></div>
             <div className="sum total"><span>Total bayar</span><span className="navy">{rp(pay.total)}</span></div>

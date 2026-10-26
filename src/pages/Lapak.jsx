@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { APP } from '../config';
 import { useAuth } from '../services/auth';
-import { useIklanSaya, useTawaranMasuk, usePenjualanSaya, useProfil } from '../services/hooks';
+import { useIklanSaya, useTawaranMasuk, usePenjualanSaya, useProfil, usePengaturan } from '../services/hooks';
 import { jawabTawaran, beriHargaBalik, hapusIklan, keluar, ubahPesanan, mintaPencairan, simpanRekening } from '../services/api';
 import { netPenjual } from '../lib/harga';
 import { rp, angka, formatRibuan } from '../lib/format';
@@ -19,7 +19,7 @@ import { Icon } from '../components/Icons';
 import { useToast } from '../components/Toast';
 import { bunyi, bunyiAktif, aturBunyi } from '../lib/bunyi';
 
-const STATUS_IKLAN = { tayang: ['Tayang', 'done'], moderasi: ['Menunggu moderasi', 'wait'], terjual: ['Terjual', ''], ditolak: ['Ditolak admin', ''] };
+const STATUS_IKLAN = { tayang: ['Tayang', 'done'], moderasi: ['Menunggu moderasi', 'wait'], terjual: ['Terjual', ''], ditolak: ['Ditolak admin', ''], disembunyikan: ['Disembunyikan (utang komisi)', ''] };
 
 export default function Lapak() {
   const { akun, admin } = useAuth();
@@ -30,6 +30,8 @@ export default function Lapak() {
   const [rekening, setRekening] = useState(false);
   const [chat, setChat] = useState(null);
   const [suara, setSuara] = useState(bunyiAktif());
+  const [lihatQris, setLihatQris] = useState(false);
+  const atur = usePengaturan().data;
 
   const iklan = useIklanSaya();
   const tawaran = useTawaranMasuk();
@@ -77,9 +79,18 @@ export default function Lapak() {
           </div>
         )}
 
-        {komisiCod > 0 && (
+        {akun?.ditangguhkan && (
           <div className="pad">
-            <div className="note y"><span>Setor komisi COD <b>{rp(komisiCod)}</b> ke QRIS admin (sama dengan QRIS pembayaran). Admin akan menandainya lunas.</span></div>
+            <div className="note no stackish">
+              <span><b>Lapakmu ditangguhkan.</b> Utang komisi COD {rp(akun.utangKomisi || komisiCod)} melewati batas {rp(APP.batasUtangKomisi)} atau lebih dari {APP.batasHariUtang} hari. Semua barangmu disembunyikan dari katalog dan kamu belum bisa memasang barang baru. Setor komisi ke QRIS admin; setelah admin menandai lunas, barangmu otomatis tayang lagi.</span>
+              <button className="link" onClick={() => setLihatQris(!lihatQris)}>{lihatQris ? 'Tutup QRIS admin' : 'Lihat QRIS admin'}</button>
+              {lihatQris && <img src={atur?.qrisUrl || APP.qrisGambar} alt="QRIS admin RE:LOOP" width="200" style={{ height: 'auto', alignSelf: 'center', borderRadius: 8 }} />}
+            </div>
+          </div>
+        )}
+        {!akun?.ditangguhkan && komisiCod > 0 && (
+          <div className="pad">
+            <div className="note y"><span>Setor komisi COD <b>{rp(komisiCod)}</b> ke QRIS admin (sama dengan QRIS pembayaran). Admin akan menandainya lunas. Kalau utang mencapai {rp(APP.batasUtangKomisi)} atau lebih dari {APP.batasHariUtang} hari, lapakmu ditangguhkan.</span></div>
           </div>
         )}
 
@@ -104,7 +115,7 @@ export default function Lapak() {
                     {['moderasi', 'tayang', 'ditolak'].includes(p.status) && (
                       <div className="btnrow-inline" style={{ justifyContent: 'flex-start' }}>
                         <Link className="link" to={`/lapak/edit/${p.id}`}>Edit barang</Link>
-                        <button className="link red" onClick={() => window.confirm(`Hapus iklan “${p.judul}”?`) && jalankan(() => hapusIklan(p), 'Iklan dihapus')}>Hapus iklan</button>
+                        <button className="link red" onClick={() => window.confirm(`Hapus iklan “${p.judul}”?\n\nKalau barang ini sedang ada di keranjang orang atau tawarannya sudah kamu setujui, penghapusan akan dicatat dan bisa membuat akunmu ditandai.`) && jalankan(async () => { const r = await hapusIklan(p); toast(r?.diminati ? 'Iklan dihapus. Barang ini sedang diminati, jadi penghapusan dicatat.' : 'Iklan dihapus'); })}>Hapus iklan</button>
                       </div>
                     )}
                   </div>
@@ -177,7 +188,7 @@ export default function Lapak() {
                   {o.status === 'selesai' && (
                     <div>
                       <div className="sum"><span>Harga barang</span><span>{rp(o.subtotal)}</span></div>
-                      <div className="sum"><span>Komisi Preloved {APP.komisi * 100}%</span><span>−{rp(o.komisi)}</span></div>
+                      <div className="sum"><span>Komisi RE:LOOP {APP.komisi * 100}%</span><span>−{rp(o.komisi)}</span></div>
                       <div className="sum total"><span>Kamu terima</span><span className="navy">{rp(netPenjual(o.subtotal) + o.ongkir)}</span></div>
                     </div>
                   )}
@@ -190,6 +201,8 @@ export default function Lapak() {
             <button className="link" onClick={() => setRekening(true)}>Rekening pencairan</button>
             <button className="link" onClick={() => { const n = !suara; aturBunyi(n); setSuara(n); if (n) bunyi(); toast(n ? 'Bunyi notifikasi dinyalakan' : 'Bunyi notifikasi dimatikan'); }}>Bunyi: {suara ? 'Nyala' : 'Mati'}</button>
             {admin && <Link className="link" to="/admin">Halaman admin</Link>}
+            <Link className="link muted" to="/syarat">Syarat &amp; Ketentuan</Link>
+            <Link className="link muted" to="/privasi">Kebijakan Privasi</Link>
             <button className="link muted" onClick={keluar}>Keluar</button>
           </div>
         </div>
@@ -208,8 +221,8 @@ function ChatPembeli({ o, tempat, waktu, onClose }) {
   return (
     <WhatsAppSheet
       nama={o.pembeliNama}
-      nomor={profil?.whatsapp}
-      pesanAwal={`Halo ${o.pembeliNama.split(' ')[0]}, saya penjual dari Preloved Unpas (pesanan ${o.kode}). Kita ketemu di ${tempat}, ${waktu} ya.`}
+      nomor={o.pembeliWa || profil?.whatsapp}
+      pesanAwal={`Halo ${o.pembeliNama.split(' ')[0]}, saya penjual dari RE:LOOP (pesanan ${o.kode}). Kita ketemu di ${tempat}, ${waktu} ya.`}
       onClose={onClose}
     />
   );

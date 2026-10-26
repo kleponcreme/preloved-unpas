@@ -183,3 +183,12 @@ export function useKomisiCod() {
     [admin],
   );
 }
+
+// Admin: penjual yang ditandai sistem atau ditangguhkan karena utang komisi COD
+export function useAkunBermasalah() {
+  const { admin } = useAuth();
+  const a = useQuery(() => (admin ? query(collection(db, 'users'), where('ditandai', '==', true)) : null), [admin]);
+  const b = useQuery(() => (admin ? query(collection(db, 'users'), where('ditangguhkan', '==', true)) : null), [admin]);
+  const gabung = new Map([...a.data, ...b.data].map((u) => [u.id, u]));
+  return { data: [...gabung.values()], loading: a.loading || b.loading };
+}

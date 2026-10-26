@@ -19,11 +19,16 @@ export { FieldValue };
 
 // Aturan bisnis. Samakan dengan src/config.js
 export const ATURAN = {
-  biayaLayanan: 1000,
+  biayaLayanan: 0, // QRIS sudah memakai kode unik 3 digit, jadi tanpa biaya layanan
   ongkirAntar: 5000,
-  promoPembeliPertama: 5000,
+  promoPembeliPertama: 1000,
   komisi: 0.05,
   batasBayarMenit: 15,
+  batasUtangKomisi: 15000, // utang komisi COD maksimal sebelum penjual ditangguhkan
+  batasHariUtang: 7, // komisi COD harus disetor paling lambat 7 hari
+  tandaBatalCod: 3, // penjual ditandai kalau membatalkan pesanan COD sebanyak ini
+  tandaHapusDiminati: 2, // atau menghapus barang yang sedang diminati sebanyak ini
+  jamMinat: 72, // barang dianggap sedang diminati kalau masuk keranjang dalam 72 jam terakhir
 };
 
 export const json = (data, status = 200) => Response.json(data, { status });
@@ -48,6 +53,36 @@ export function batalkanPembayaran(tx, payRef, pay, orders, products, status) {
     if (p.exists) tx.update(p.ref, { stok: FieldValue.increment(1), status: 'tayang' });
   });
   if (pay.promo > 0) tx.update(db.doc(`users/${pay.pembeliId}`), { promoDipakai: false });
+}
+
+// Menghitung utang komisi COD seorang penjual. Kalau melewati batas (nominal atau hari),
+// penjual ditangguhkan: barangnya disembunyikan dari katalog dan tidak bisa memasang barang baru.
+// Kalau utangnya sudah di bawah batas, semuanya dipulihkan otomatis.
+export async function evaluasiTangguh(penjualId) {
+  const q = await db.collection('orders').where('penjualId', '==', penjualId).where('metodeBayar', '==', 'cod')
+    .where('status', '==', 'selesai').where('komisiLunas', '==', false).get();
+  let total = 0;
+  let tertua = null;
+  q.docs.forEach((d) => {
+    const o = d.data();
+    total += o.komisi || 0;
+    const t = o.selesai?.toMillis ? o.selesai.toMillis() : Date.now();
+    if (tertua === null || t < tertua) tertua = t;
+  });
+  const lewatHari = tertua !== null && Date.now() - tertua > ATURAN.batasHariUtang * 86400000;
+  const tangguh = total >= ATURAN.batasUtangKomisi || lewatHari;
+  const userRef = db.doc(`users/${penjualId}`);
+  const u = (await userRef.get()).data() || {};
+  await userRef.set({ utangKomisi: total, utangSejak: tertua }, { merge: true });
+  if (Boolean(u.ditangguhkan) === tangguh) return tangguh;
+  await userRef.set({ ditangguhkan: tangguh }, { merge: true });
+  const dari = tangguh ? 'tayang' : 'disembunyikan';
+  const ke = tangguh ? 'disembunyikan' : 'tayang';
+  const produk = await db.collection('products').where('penjualId', '==', penjualId).where('status', '==', dari).get();
+  const batch = db.batch();
+  produk.docs.forEach((d) => batch.update(d.ref, { status: ke }));
+  await batch.commit();
+  return tangguh;
 }
 
 export async function bacaUntukBatal(tx, pay) {

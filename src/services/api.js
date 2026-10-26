@@ -1,6 +1,6 @@
 // Aksi yang mengubah data. Halaman memanggil fungsi di sini, bukan Firebase langsung.
 import { createUserWithEmailAndPassword, sendPasswordResetEmail, signInWithEmailAndPassword, signOut } from 'firebase/auth';
-import { addDoc, collection, deleteDoc, doc, getDoc, serverTimestamp, setDoc, updateDoc } from 'firebase/firestore';
+import { addDoc, collection, deleteDoc, deleteField, doc, getDoc, serverTimestamp, setDoc, updateDoc } from 'firebase/firestore';
 import { auth, db } from './firebase';
 import { fotoUrl, fotoPrivat, hapusFoto, keBase64 } from '../lib/foto';
 import { kecilkanFoto } from '../lib/image';
@@ -18,8 +18,9 @@ export async function daftar({ email, password, nama, npm, prodi, angkatan, what
   const ktm = await kecilkanFoto(fotoKtm);
   const { user } = await createUserWithEmailAndPassword(auth, email.trim(), password);
   const data = { nama: nama.trim(), prodi, angkatan: Number(angkatan) };
-  await setDoc(doc(db, 'users', user.uid), { ...data, npm: npm.trim(), statusVerifikasi: 'menunggu', dibuat: serverTimestamp() });
-  await setDoc(doc(db, 'profiles', user.uid), { ...data, whatsapp: whatsapp.trim() });
+  // Nomor WhatsApp disimpan di data privat; baru dibagikan ke lawan transaksi lewat pesanan
+  await setDoc(doc(db, 'users', user.uid), { ...data, npm: npm.trim(), whatsapp: whatsapp.trim(), statusVerifikasi: 'menunggu', dibuat: serverTimestamp() });
+  await setDoc(doc(db, 'profiles', user.uid), data);
   const { key } = await unggahFoto('ktm', ktm);
   await setDoc(doc(db, 'verifications', user.uid), { path: key, status: 'menunggu', dibuat: serverTimestamp() });
   await cekAdmin();
@@ -47,8 +48,20 @@ export const lupaPassword = (email) => sendPasswordResetEmail(auth, email.trim()
 
 /* ---------- Keranjang ---------- */
 
-export const tambahKeKeranjang = (productId) =>
-  setDoc(doc(db, 'carts', uid(), 'items', productId), { productId, dipilih: true, ditambahkan: serverTimestamp() });
+export async function tambahKeKeranjang(productId) {
+  await setDoc(doc(db, 'carts', uid(), 'items', productId), { productId, dipilih: true, ditambahkan: serverTimestamp() });
+  // Tandai barang sedang diminati (dipakai untuk mencatat penjual yang menghapus barang yang sedang diminati)
+  await updateDoc(doc(db, 'products', productId), { terakhirDiminati: serverTimestamp() }).catch(() => {});
+}
+
+// Akun lama menyimpan WhatsApp di profil publik; pindahkan ke data privat
+export async function pindahkanWhatsapp(u) {
+  const p = await getDoc(doc(db, 'profiles', u));
+  const wa = p.exists() ? p.data().whatsapp : undefined;
+  if (!wa) return;
+  await updateDoc(doc(db, 'users', u), { whatsapp: wa });
+  await updateDoc(doc(db, 'profiles', u), { whatsapp: deleteField() });
+}
 
 export const hapusDariKeranjang = (productId) => deleteDoc(doc(db, 'carts', uid(), 'items', productId));
 
@@ -136,6 +149,8 @@ export async function pasangBarang(data, files, akun) {
     kondisi: data.kondisi,
     harga: data.harga,
     bisaNego: data.bisaNego,
+    bolehCod: data.bolehCod !== false,
+    ajukanPaket: Boolean(data.ajukanPaket),
     stok: Math.max(1, Math.floor(Number(data.stok) || 1)),
     usiaPakai: data.usiaPakai.trim(),
     deskripsi: data.deskripsi.trim(),
@@ -175,13 +190,15 @@ export async function ubahBarang(produk, data, foto) {
     kondisi: data.kondisi,
     harga: data.harga,
     bisaNego: data.bisaNego,
+    bolehCod: data.bolehCod !== false,
+    ajukanPaket: Boolean(data.ajukanPaket),
     usiaPakai: data.usiaPakai.trim(),
     deskripsi: data.deskripsi.trim(),
     foto: urls,
     fotoPath: keys,
   };
   const sama = (a, b) => JSON.stringify(a ?? '') === JSON.stringify(b ?? '');
-  const isiBerubah = ['judul', 'kategori', 'kondisi', 'usiaPakai', 'deskripsi', 'fotoPath'].some((k) => !sama(isi[k], produk[k]));
+  const isiBerubah = ['judul', 'kategori', 'kondisi', 'usiaPakai', 'deskripsi', 'fotoPath', 'bolehCod', 'ajukanPaket'].some((k) => !sama(isi[k], produk[k]));
   const patch = { ...isi, diubah: serverTimestamp() };
   if (isiBerubah && produk.status !== 'moderasi') patch.status = 'moderasi';
   await updateDoc(doc(db, 'products', produk.id), patch);
@@ -190,10 +207,8 @@ export async function ubahBarang(produk, data, foto) {
   return { perluModerasi: patch.status === 'moderasi' };
 }
 
-export async function hapusIklan(produk) {
-  await deleteDoc(doc(db, 'products', produk.id));
-  await Promise.all((produk.fotoPath ?? []).map((p) => hapusFoto(p)));
-}
+// Lewat server supaya penghapusan barang yang sedang diminati bisa dicatat
+export const hapusIklan = (produk) => panggilFungsi('hapus-barang', { productId: produk.id });
 
 /* ---------- Admin ---------- */
 
@@ -211,7 +226,11 @@ export async function verifikasiAkun(userId, setuju) {
   }
 }
 
-export const moderasiIklan = (productId, setuju) => updateDoc(doc(db, 'products', productId), { status: setuju ? 'tayang' : 'ditolak' });
+// Admin menayangkan/menolak iklan sekaligus menyetujui metode bayar (COD) dan Paket Maba
+export const moderasiIklan = (productId, setuju, opsi = {}) =>
+  updateDoc(doc(db, 'products', productId), { status: setuju ? 'tayang' : 'ditolak', ...(setuju ? opsi : {}) });
+export const aturPaket = (productId, paket) => updateDoc(doc(db, 'products', productId), { paket });
+export const hapusTanda = (userId) => updateDoc(doc(db, 'users', userId), { ditandai: false, risiko: { batalCod: 0, hapusSetelahMinat: 0 } });
 
 /* ---------- Pengaturan (admin) ---------- */
 

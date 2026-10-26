@@ -18,14 +18,26 @@ export default async (req) => {
       const userRef = db.doc(`users/${uid}`);
       const user = (await tx.get(userRef)).data();
       if (user?.statusVerifikasi !== 'terverifikasi') throw new Error('Akun belum terverifikasi.');
+      const atur = (await tx.get(db.doc('settings/app'))).data() || {};
+      if (cod && atur.codAktif === false) throw new Error('Pembayaran COD sedang ditutup admin.');
+      if (!cod && atur.qrisAktif === false) throw new Error('Pembayaran QRIS sedang ditutup admin.');
+      const pembeliWa = user.whatsapp ?? (await tx.get(db.doc(`profiles/${uid}`))).data()?.whatsapp ?? '';
       const items = [];
       for (const id of [...new Set(productIds)]) {
         const p = (await tx.get(db.doc(`products/${id}`))).data();
         if (!p || p.status !== 'tayang' || p.stok < 1) throw new Error(`“${p?.judul ?? 'Barang'}” sudah tidak tersedia.`);
         if (p.penjualId === uid) throw new Error('Kamu tidak bisa membeli barangmu sendiri.');
+        if (cod && p.bolehCod === false) throw new Error(`“${p.judul}” hanya bisa dibayar dengan QRIS.`);
         const nego = await tx.get(db.collection('offers').where('productId', '==', id).where('pembeliId', '==', uid).where('status', '==', 'diterima').limit(1));
         const o = nego.docs[0]?.data();
         items.push({ id, p, harga: o ? o.hargaBalik ?? o.hargaTawar : p.harga, nego: Boolean(o) });
+      }
+
+      // Nomor WhatsApp penjual hanya dibagikan lewat pesanan
+      const waPenjual = {};
+      for (const id of new Set(items.map((i) => i.p.penjualId))) {
+        const u = (await tx.get(db.doc(`users/${id}`))).data();
+        waPenjual[id] = u?.whatsapp ?? (await tx.get(db.doc(`profiles/${id}`))).data()?.whatsapp ?? '';
       }
 
       // 2. Hitung
@@ -33,7 +45,7 @@ export default async (req) => {
       for (const it of items) (perPenjual[it.p.penjualId] ||= []).push(it);
       const payRef = db.collection('payments').doc();
       const now = Date.now();
-      const kode = `PU-${new Date(now).toISOString().slice(8, 10)}${new Date(now).toISOString().slice(5, 7)}-${payRef.id.slice(0, 4).toUpperCase()}`;
+      const kode = `RL-${new Date(now).toISOString().slice(8, 10)}${new Date(now).toISOString().slice(5, 7)}-${payRef.id.slice(0, 4).toUpperCase()}`;
       const orderDocs = Object.entries(perPenjual).map(([penjualId, list]) => {
         const subtotal = list.reduce((t, i) => t + i.harga, 0);
         const ongkir = caraTerima === 'antar' ? ATURAN.ongkirAntar : 0;
@@ -41,6 +53,7 @@ export default async (req) => {
           ref: db.collection('orders').doc(),
           data: {
             paymentId: cod ? null : payRef.id, metodeBayar, kode, pembeliId: uid, pembeliNama: user.nama, penjualId, penjualNama: list[0].p.penjualNama ?? '',
+            pembeliWa, penjualWa: waPenjual[penjualId] || '',
             items: list.map((i) => ({ productId: i.id, judul: i.p.judul, harga: i.harga, foto: i.p.foto?.[0] ?? null, nego: i.nego })),
             subtotal, ongkir, caraTerima, catatan: String(catatan).slice(0, 300),
             jadwal: { hari: String(jadwal?.hari ?? ''), tanggal: String(jadwal?.tanggal ?? ''), jam: String(jadwal?.jam ?? '') },

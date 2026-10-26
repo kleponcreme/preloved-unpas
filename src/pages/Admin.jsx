@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { useAkunMenunggu, useIklanModerasi, usePembayaranMenunggu, usePencairanDiminta, useKomisiCod, usePengaturan } from '../services/hooks';
-import { ambilFotoKtm, verifikasiAkun, moderasiIklan, ubahPembayaran, ambilBuktiBayar, ubahPesanan, tandaiKomisiLunas, simpanPengaturan, unggahQris } from '../services/api';
+import { useAkunMenunggu, useIklanModerasi, usePembayaranMenunggu, usePencairanDiminta, useKomisiCod, usePengaturan, useAkunBermasalah } from '../services/hooks';
+import { ambilFotoKtm, verifikasiAkun, moderasiIklan, ubahPembayaran, ambilBuktiBayar, ubahPesanan, tandaiKomisiLunas, simpanPengaturan, unggahQris, hapusTanda } from '../services/api';
 import { APP } from '../config';
 import { netPenjual } from '../lib/harga';
 import { rp } from '../lib/format';
@@ -21,9 +21,10 @@ export default function Admin() {
   const iklan = useIklanModerasi();
   const cair = usePencairanDiminta();
   const komisi = useKomisiCod();
+  const tanda = useAkunBermasalah();
   const kosong = { data: [], loading: false };
-  const tabs = [['bayar', 'Pembayaran', bayar], ['akun', 'Akun', akun], ['iklan', 'Iklan', iklan], ['cair', 'Pencairan', cair], ['komisi', 'Komisi COD', komisi], ['atur', 'Pengaturan', kosong]];
-  const isi = { bayar, akun, iklan, cair, komisi, atur: kosong }[tab];
+  const tabs = [['bayar', 'Pembayaran', bayar], ['akun', 'Akun', akun], ['iklan', 'Iklan', iklan], ['cair', 'Pencairan', cair], ['komisi', 'Komisi COD', komisi], ['tanda', 'Ditandai', tanda], ['atur', 'Pengaturan', kosong]];
+  const isi = { bayar, akun, iklan, cair, komisi, tanda, atur: kosong }[tab];
 
   return (
     <>
@@ -37,7 +38,8 @@ export default function Admin() {
             tab === 'bayar' ? <KartuBayar key={d.id} p={d} /> :
             tab === 'akun' ? <KartuAkun key={d.id} u={d} /> :
             tab === 'iklan' ? <KartuIklan key={d.id} p={d} /> :
-            tab === 'komisi' ? <KartuKomisi key={d.id} o={d} /> : <KartuCair key={d.id} o={d} />)}
+            tab === 'komisi' ? <KartuKomisi key={d.id} o={d} /> :
+            tab === 'tanda' ? <KartuTanda key={d.id} u={d} /> : <KartuCair key={d.id} o={d} />)}
         </div>
       </main>
     </>
@@ -114,6 +116,8 @@ function KartuAkun({ u }) {
 
 function KartuIklan({ p }) {
   const [proses, jalankan] = useAksi();
+  const [cod, setCod] = useState(p.bolehCod !== false);
+  const [paket, setPaket] = useState(Boolean(p.ajukanPaket || p.paket));
   return (
     <div className="card">
       {p.foto?.length > 0 && <div className="admin-photos">{p.foto.map((f) => <img key={f} src={f} alt="" />)}</div>}
@@ -128,8 +132,13 @@ function KartuIklan({ p }) {
           </div>
         </div>
         {p.deskripsi && <p className="desc small">{p.deskripsi}</p>}
+        <div className="note b stackish">
+          <span>Penjual mengajukan: <b>{p.bolehCod === false ? 'QRIS saja' : 'QRIS dan COD'}</b>{p.ajukanPaket ? ', masuk Paket Maba' : ''}.</span>
+          <label className="switch">Setujui pembayaran COD<input type="checkbox" checked={cod} onChange={(e) => setCod(e.target.checked)} /></label>
+          <label className="switch">Masukkan ke Paket Maba FISIP<input type="checkbox" checked={paket} onChange={(e) => setPaket(e.target.checked)} /></label>
+        </div>
         <div className="btnrow">
-          <button className="btn sm dark" disabled={proses} onClick={() => jalankan(() => moderasiIklan(p.id, true), 'Iklan ditayangkan')}>Tayangkan</button>
+          <button className="btn sm dark" disabled={proses} onClick={() => jalankan(() => moderasiIklan(p.id, true, { bolehCod: cod, paket }), 'Iklan ditayangkan')}>Tayangkan</button>
           <button className="btn sm ghost danger" disabled={proses} onClick={() => jalankan(() => moderasiIklan(p.id, false), 'Iklan ditolak')}>Tolak</button>
         </div>
       </div>
@@ -169,10 +178,34 @@ function Pengaturan() {
         </label>
       </div>
       <div className="card card-b stack lg">
+        <span className="ctitle">Metode pembayaran</span>
+        <label className="switch">QRIS (rekber) dibuka<input type="checkbox" checked={atur?.qrisAktif !== false} disabled={proses} onChange={(e) => jalankan(() => simpanPengaturan({ qrisAktif: e.target.checked }), e.target.checked ? 'QRIS dibuka' : 'QRIS ditutup')} /></label>
+        <label className="switch">COD tunai dibuka<input type="checkbox" checked={atur?.codAktif !== false} disabled={proses} onChange={(e) => jalankan(() => simpanPengaturan({ codAktif: e.target.checked }), e.target.checked ? 'COD dibuka' : 'COD ditutup')} /></label>
+        <span className="meta">Menutup metode berlaku untuk semua pesanan baru. COD per barang tetap mengikuti persetujuan saat moderasi.</span>
         <label className="field"><span className="flabel">Nama penerima QRIS</span><input className="input" value={nilai.qrisPenerima} onChange={(e) => setF({ ...nilai, qrisPenerima: e.target.value })} /></label>
         <label className="field"><span className="flabel">Lokasi pasti Titik Temu</span><input className="input" value={nilai.lokasiTitikTemu} onChange={(e) => setF({ ...nilai, lokasiTitikTemu: e.target.value })} placeholder="Contoh: Lobi gedung FISIP, dekat mading" /></label>
         <button className="btn primary" disabled={proses} onClick={() => jalankan(async () => { await simpanPengaturan({ qrisPenerima: nilai.qrisPenerima.trim(), lokasiTitikTemu: nilai.lokasiTitikTemu.trim() }); setF(null); }, 'Pengaturan disimpan')}>Simpan pengaturan</button>
       </div>
     </>
+  );
+}
+
+function KartuTanda({ u }) {
+  const [proses, jalankan] = useAksi();
+  const r = u.risiko || {};
+  const wa = (u.whatsapp || '').replace(/\D/g, '').replace(/^0/, '62');
+  return (
+    <div className="card card-b stack">
+      <div className="item center"><b className="grow">{u.nama}</b>{u.ditangguhkan ? <span className="status">Ditangguhkan</span> : <span className="status wait">Ditandai</span>}</div>
+      <span className="meta">NPM {u.npm} · {u.prodi} · {u.angkatan}</span>
+      <div className="sum"><span>Utang komisi COD</span><span>{rp(u.utangKomisi || 0)}</span></div>
+      <div className="sum"><span>Membatalkan pesanan COD</span><span>{r.batalCod || 0} kali</span></div>
+      <div className="sum"><span>Menghapus barang yang sedang diminati</span><span>{r.hapusSetelahMinat || 0} kali</span></div>
+      {u.ditangguhkan && <div className="note y"><span>Barang penjual ini disembunyikan dan ia tidak bisa memasang barang baru. Status pulih otomatis setelah komisinya ditandai lunas di tab Komisi COD.</span></div>}
+      <div className="btnrow">
+        {wa && <a className="btn sm waout" href={`https://wa.me/${wa}`} target="_blank" rel="noreferrer">Chat penjual</a>}
+        {u.ditandai && <button className="btn sm ghost" disabled={proses} onClick={() => window.confirm('Hapus tanda dan reset catatan penjual ini?') && jalankan(() => hapusTanda(u.id), 'Tanda dihapus')}>Hapus tanda</button>}
+      </div>
+    </div>
   );
 }

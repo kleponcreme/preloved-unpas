@@ -19,6 +19,7 @@ export default async (req) => {
     if (jenis === 'produk') {
       const u = (await db.doc(`users/${uid}`).get()).data();
       if (u?.statusVerifikasi !== 'terverifikasi' && token.admin !== true) throw new Error('Akun belum terverifikasi.');
+      if (u?.ditangguhkan && token.admin !== true) throw new Error('Lunasi komisi COD dulu sebelum memasang barang.');
       key = `produk/${uid}/${Date.now()}-${acak()}.jpg`;
     } else if (jenis === 'ktm') {
       key = `ktm/${uid}.jpg`;

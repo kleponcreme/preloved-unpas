@@ -22,7 +22,8 @@ export default function Checkout() {
   const [jam, setJam] = useState(APP.jamTemu[1]);
   const [catatan, setCatatan] = useState('');
   const [metodeBayar, setMetodeBayar] = useState('qris');
-  const lokasi = usePengaturan().data?.lokasiTitikTemu || APP.lokasiTitikTemu;
+  const atur = usePengaturan().data;
+  const lokasi = atur?.lokasiTitikTemu || APP.lokasiTitikTemu;
   const [error, setError] = useState('');
   const [proses, setProses] = useState(false);
 
@@ -30,7 +31,13 @@ export default function Checkout() {
   const jumlahPenjual = new Set(dipilih.map((i) => i.produk.penjualId)).size;
   const subtotal = dipilih.reduce((t, i) => t + hargaEfektif(i.produk, tawaranSaya), 0);
   const ongkir = caraTerima === 'antar' ? APP.ongkirAntar * jumlahPenjual : 0;
-  const qris = metodeBayar === 'qris';
+  // Metode bayar: QRIS/COD bisa ditutup admin, dan COD bisa ditolak penjual per barang
+  const hanyaQris = [...new Set(dipilih.filter((i) => i.produk.bolehCod === false).map((i) => i.produk.penjualNama))];
+  const qrisBuka = atur?.qrisAktif !== false;
+  const codBuka = atur?.codAktif !== false && hanyaQris.length === 0;
+  const metode = metodeBayar === 'cod' && !codBuka ? 'qris' : metodeBayar === 'qris' && !qrisBuka ? 'cod' : metodeBayar;
+  const qris = metode === 'qris';
+  const bisaBayar = qris ? qrisBuka : codBuka;
   const promo = !qris || akun?.promoDipakai ? 0 : Math.min(APP.promoPembeliPertama, subtotal + ongkir);
   const layanan = qris ? APP.biayaLayanan : 0;
   const total = subtotal + ongkir + layanan - promo;
@@ -42,7 +49,7 @@ export default function Checkout() {
     setError('');
     setProses(true);
     try {
-      const r = await buatPesanan({ productIds: dipilih.map((i) => i.productId), caraTerima, catatan, metodeBayar, jadwal: { ...HARI[hariIdx], jam } });
+      const r = await buatPesanan({ productIds: dipilih.map((i) => i.productId), caraTerima, catatan, metodeBayar: metode, jadwal: { ...HARI[hariIdx], jam } });
       if (r.paymentId) navigate(`/bayar/${r.paymentId}`, { replace: true });
       else navigate(r.orderIds.length === 1 ? `/pesanan/${r.orderIds[0]}` : '/pesanan', { replace: true });
     } catch (e) {
@@ -90,27 +97,30 @@ export default function Checkout() {
 
           <fieldset className="card card-b">
             <legend>Metode pembayaran</legend>
-            <label className="opt">
-              <input type="radio" name="bayar" value="qris" checked={qris} onChange={() => setMetodeBayar('qris')} />
+            <label className={`opt${qrisBuka ? '' : ' off'}`}>
+              <input type="radio" name="bayar" value="qris" checked={qris} disabled={!qrisBuka} onChange={() => setMetodeBayar('qris')} />
               <span className="t">
                 <b style={{ display: 'flex', alignItems: 'center', gap: 6 }}>QRIS <span className="rekber">REKBER</span></b>
-                <span>Bayar ke QRIS admin Preloved Unpas. Dana ditahan sampai barang diterima.</span>
+                <span>Bayar ke QRIS admin RE:LOOP. Dana ditahan sampai barang diterima.</span>
               </span>
             </label>
-            <label className="opt">
-              <input type="radio" name="bayar" value="cod" checked={!qris} onChange={() => setMetodeBayar('cod')} />
+            <label className={`opt${codBuka ? '' : ' off'}`}>
+              <input type="radio" name="bayar" value="cod" checked={!qris} disabled={!codBuka} onChange={() => setMetodeBayar('cod')} />
               <span className="t">
                 <b>Tunai saat COD</b>
                 <span>Bayar langsung ke penjual di Titik Temu, tanpa perlindungan rekber. Promo tidak berlaku.</span>
               </span>
             </label>
+            {!qrisBuka && <p className="meta">Pembayaran QRIS sedang ditutup admin.</p>}
+            {atur?.codAktif === false && <p className="meta">Pembayaran COD sedang ditutup admin.</p>}
+            {atur?.codAktif !== false && hanyaQris.length > 0 && <p className="meta">COD tidak tersedia karena {hanyaQris.join(', ')} hanya menerima QRIS.</p>}
           </fieldset>
 
           <div className="card card-b">
             <span className="ctitle" style={{ display: 'block', marginBottom: 6 }}>Ringkasan</span>
             <div className="sum"><span>Subtotal ({dipilih.length} barang)</span><span>{rp(subtotal)}</span></div>
             <div className="sum"><span>Biaya antar</span><span>{ongkir ? rp(ongkir) : <span className="green">Gratis</span>}</span></div>
-            <div className="sum"><span>Biaya layanan</span><span>{layanan ? rp(layanan) : <span className="green">Gratis</span>}</span></div>
+            {layanan > 0 && <div className="sum"><span>Biaya layanan</span><span>{rp(layanan)}</span></div>}
             {promo > 0 && <div className="sum"><span>Promo Pembeli Pertama</span><span className="green">−{rp(promo)}</span></div>}
             <div className="sum total"><span>Total bayar</span><span className="navy">{rp(total)}</span></div>
             {qris
@@ -122,7 +132,7 @@ export default function Checkout() {
       </main>
       <div className="actionbar">
         <div className="totalbox"><small>Total bayar</small><b>{rp(total)}</b></div>
-        <button className="btn primary" onClick={bayar} disabled={proses}>{proses ? 'Memproses…' : qris ? 'Bayar dengan QRIS' : 'Buat pesanan'}</button>
+        <button className="btn primary" onClick={bayar} disabled={proses || !bisaBayar}>{proses ? 'Memproses…' : qris ? 'Bayar dengan QRIS' : 'Buat pesanan'}</button>
       </div>
     </>
   );

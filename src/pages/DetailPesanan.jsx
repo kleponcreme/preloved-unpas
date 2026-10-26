@@ -125,7 +125,7 @@ export default function DetailPesanan() {
               <div>
                 <div className="sum"><span>Harga barang</span><span>{rp(o.subtotal)}</span></div>
                 {o.ongkir > 0 && <div className="sum"><span>Ongkir antar</span><span>{rp(o.ongkir)}</span></div>}
-                <div className="sum"><span>Komisi Preloved {APP.komisi * 100}%</span><span>−{rp(o.komisi)}</span></div>
+                <div className="sum"><span>Komisi RE:LOOP {APP.komisi * 100}%</span><span>−{rp(o.komisi)}</span></div>
                 <div className="sum total"><span>Kamu terima</span><span className="navy">{rp(netPenjual(o.subtotal) + o.ongkir)}</span></div>
                 {cod && !o.komisiLunas && <div className="note y" style={{ marginTop: 8 }}><span>Pembayaran COD diterima tunai, jadi setor komisi <b>{rp(o.komisi)}</b> ke QRIS admin. Admin akan menandainya lunas.</span></div>}
               </div>
@@ -162,9 +162,9 @@ export default function DetailPesanan() {
       {chat && (
         <WhatsAppSheet
           nama={namaLawan}
-          nomor={lawan?.whatsapp}
+          nomor={(sayaPenjual ? o.pembeliWa : o.penjualWa) || lawan?.whatsapp}
           pesanAwal={sayaPenjual
-            ? `Halo ${o.pembeliNama.split(' ')[0]}, saya penjual dari Preloved Unpas (pesanan ${o.kode}). Kita ketemu di ${tempat}, ${waktu} ya.`
+            ? `Halo ${o.pembeliNama.split(' ')[0]}, saya penjual dari RE:LOOP (pesanan ${o.kode}). Kita ketemu di ${tempat}, ${waktu} ya.`
             : `Halo Kak ${o.penjualNama.split(' ')[0]}, saya pembeli ${o.items[0].judul} (pesanan ${o.kode}). Kita ketemu di ${tempat}, ${waktu} ya.`}
           onClose={() => setChat(false)}
         />

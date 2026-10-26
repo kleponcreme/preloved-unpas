@@ -1,0 +1,237 @@
+{
+  "berlaku": "[tanggal mulai berlaku]",
+  "syarat": [
+    {
+      "judul": "1. Tentang RE:LOOP",
+      "isi": [
+        "RE:LOOP (Preloved FISIP Unpas) adalah website jual-beli barang bekas khusus mahasiswa FISIP Universitas Pasundan Kampus Lengkong, di alamat prelovedunpas.netlify.app. Website dikelola oleh tim mahasiswa [nama tim dan penanggung jawab] (selanjutnya disebut \"Pengelola\").",
+        "Pengelola menyediakan tempat bertemunya penjual dan pembeli. Pengelola bukan pemilik barang yang dijual, kecuali barang titipan yang dijual atas nama Tim RE:LOOP.",
+        "Dengan mendaftar dan memakai website, kamu menyetujui Syarat & Ketentuan ini dan Kebijakan Privasi."
+      ]
+    },
+    {
+      "judul": "2. Siapa yang boleh memakai",
+      "isi": [
+        "Website hanya untuk mahasiswa aktif FISIP Universitas Pasundan Kampus Lengkong.",
+        "Satu orang hanya boleh memiliki satu akun, dengan data diri yang benar.",
+        "Akun baru diverifikasi admin dari foto KTM. Admin berhak menolak pendaftaran yang datanya tidak sesuai, dan menonaktifkan akun yang melanggar ketentuan ini."
+      ]
+    },
+    {
+      "judul": "3. Akun dan keamanan",
+      "isi": [
+        "Jaga kerahasiaan password. Semua aktivitas dari akunmu menjadi tanggung jawabmu.",
+        "Segera hubungi admin kalau akunmu dipakai orang lain tanpa izin."
+      ]
+    },
+    {
+      "judul": "4. Barang yang boleh dan dilarang",
+      "isi": [
+        "Boleh dijual: barang bekas layak pakai milik sendiri, seperti pakaian, buku kuliah, barang kos, elektronik, dan perlengkapan kuliah.",
+        "Dilarang dijual: barang curian atau tidak jelas asal-usulnya; obat-obatan, narkotika, rokok, vape, dan minuman beralkohol; senjata dan bahan berbahaya; barang palsu atau bajakan, termasuk buku fotokopi bajakan dan software bajakan; konten dewasa; hewan; akun digital atau data pribadi orang lain; jasa joki tugas atau ujian; serta barang lain yang melanggar hukum atau aturan kampus.",
+        "Admin berhak menolak, menurunkan, atau menghapus iklan yang melanggar, tanpa pemberitahuan sebelumnya."
+      ]
+    },
+    {
+      "judul": "5. Kewajiban penjual",
+      "isi": [
+        "Menampilkan kondisi barang dengan jujur, termasuk foto bagian yang minus, dan menjaga stok tetap sesuai.",
+        "Memilih metode pembayaran yang diterima untuk setiap barang. QRIS selalu tersedia; pembayaran COD hanya berlaku jika dipilih penjual dan disetujui admin.",
+        "Hadir di Titik Temu atau mengantar barang sesuai jadwal yang sudah dikonfirmasi, dan tidak membatalkan pesanan tanpa alasan yang jelas.",
+        "Tidak menghapus barang yang sudah ditawar dan disetujui, atau yang sedang ada di keranjang pembeli, untuk dijual di luar website.",
+        "Tidak meminta pembeli mentransfer uang langsung ke rekening pribadi untuk pesanan yang dibuat lewat website.",
+        "Menyetor komisi pesanan COD ke QRIS admin paling lambat 7 hari setelah pesanan selesai."
+      ]
+    },
+    {
+      "judul": "6. Kewajiban pembeli",
+      "isi": [
+        "Memeriksa barang saat serah terima sebelum membayar (COD) atau sebelum menekan tombol \"Barang sudah diterima\" (QRIS).",
+        "Menekan \"Barang sudah diterima\" hanya setelah barang benar-benar diterima dan sesuai. Setelah tombol ditekan, dana diteruskan ke penjual dan tidak bisa ditarik kembali.",
+        "Hadir sesuai jadwal yang disepakati, atau mengabari penjual lebih awal lewat WhatsApp kalau berhalangan.",
+        "Nomor WhatsApp penjual dan pembeli baru terlihat setelah pesanan dibuat, dan hanya boleh dipakai untuk urusan pesanan tersebut."
+      ]
+    },
+    {
+      "judul": "7. Nego harga",
+      "isi": [
+        "Harga yang disepakati lewat fitur nego berlaku untuk pembeli yang menawar, dan otomatis dipakai saat checkout.",
+        "Ajukan tawaran hanya kalau kamu sungguh berniat membeli."
+      ]
+    },
+    {
+      "judul": "8. Pembayaran QRIS (rekber)",
+      "isi": [
+        "Pembeli membayar ke QRIS milik Pengelola dengan nominal tepat sesuai yang tertera, termasuk tiga digit kode unik di belakang, lalu mengunggah bukti bayar dalam 15 menit. Tiga digit kode unik ikut dibayar dan menggantikan biaya layanan. Pesanan yang tidak dibayar dalam waktu itu batal otomatis.",
+        "Admin mencocokkan bukti dengan mutasi QRIS. Setelah diterima, dana ditahan oleh Pengelola dan baru diteruskan ke penjual setelah pembeli menekan \"Barang sudah diterima\".",
+        "Penjual dapat meminta pencairan setelah pesanan selesai. Pengelola mentransfer dana, yaitu harga barang dikurangi komisi ditambah ongkir antar bila ada, ke rekening atau e-wallet penjual paling lambat 1x24 jam setelah diminta.",
+        "Kalau barang tidak diserahkan atau tidak sesuai deskripsi, pembeli melapor ke admin sebelum menekan \"Barang sudah diterima\", paling lambat 2x24 jam setelah jadwal serah terima. Setelah diperiksa, dana dapat dikembalikan ke pembeli.",
+        "Kalau pembeli tidak mengonfirmasi dalam 3x24 jam setelah jadwal serah terima dan tidak ada laporan masalah, Pengelola dapat menyelesaikan pesanan dan meneruskan dana ke penjual."
+      ]
+    },
+    {
+      "judul": "9. Pembayaran tunai saat COD",
+      "isi": [
+        "COD hanya tersedia untuk barang yang penjualnya menerima COD dan sudah disetujui admin, dan selama admin membuka metode COD.",
+        "Pembeli membayar tunai langsung ke penjual saat bertemu, setelah memeriksa barang.",
+        "Transaksi COD tidak dilindungi rekber. Pengelola tidak bertanggung jawab atas uang tunai yang berpindah tangan, tetapi tetap membantu menengahi laporan masalah."
+      ]
+    },
+    {
+      "judul": "10. Biaya",
+      "isi": [
+        "Memasang iklan gratis.",
+        "Komisi 5% dari harga barang, hanya saat barang laku. Untuk QRIS, komisi dipotong saat pencairan. Untuk COD, komisi disetor penjual ke QRIS admin paling lambat 7 hari.",
+        "Tidak ada biaya layanan. Untuk pembayaran QRIS, pembeli hanya menambahkan tiga digit kode unik sebagai penanda pembayaran.",
+        "Ongkir antar ke kos Rp5.000 per penjual, diteruskan ke penjual yang mengantar.",
+        "Promo pembeli pertama berupa potongan Rp1.000, berlaku satu kali per akun untuk pembayaran QRIS.",
+        "Layanan titip jual memakai bagi hasil 20% untuk Pengelola, dengan ketentuan yang disepakati saat penitipan."
+      ]
+    },
+    {
+      "judul": "11. Pembatalan dan pengembalian dana",
+      "isi": [
+        "Sebelum membayar, pembeli dapat membatalkan pesanan QRIS dari halaman pembayaran. Jangan membayar pesanan yang sudah batal; kalau terlanjur, hubungi admin dan dana akan dikembalikan penuh.",
+        "Setelah dana ditahan, pembatalan hanya lewat admin. Dana dikembalikan ke pembeli setelah dipastikan barang tidak diserahkan.",
+        "Pesanan COD dapat dibatalkan pembeli atau penjual sebelum pesanan selesai."
+      ]
+    },
+    {
+      "judul": "12. Utang komisi COD dan penangguhan",
+      "isi": [
+        "Komisi pesanan COD yang belum disetor dicatat sebagai utang penjual.",
+        "Jika total utang komisi mencapai Rp15.000 atau lebih, atau ada komisi yang belum disetor lebih dari 7 hari, lapak penjual ditangguhkan secara otomatis: semua barangnya disembunyikan dari katalog dan penjual tidak dapat memasang atau mengedit barang.",
+        "Penangguhan dicabut otomatis setelah admin menandai komisi lunas dan utang kembali di bawah batas."
+      ]
+    },
+    {
+      "judul": "13. Penandaan penjual",
+      "isi": [
+        "Sistem mencatat penjual yang membatalkan pesanan COD dan yang menghapus barang ketika barang itu sedang diminati, yaitu sudah ada tawaran yang disetujui atau baru dimasukkan pembeli ke keranjang.",
+        "Penjual yang membatalkan pesanan COD 3 kali atau menghapus barang yang sedang diminati 2 kali akan ditandai untuk ditinjau admin. Admin dapat memberi peringatan, menahan iklan, atau menonaktifkan akun."
+      ]
+    },
+    {
+      "judul": "14. Sengketa",
+      "isi": [
+        "Laporkan masalah ke admin lewat WhatsApp admin [nomor WhatsApp admin] atau email [email admin], sertakan nomor pesanan dan bukti seperti foto atau tangkapan layar chat.",
+        "Admin akan menengahi berdasarkan bukti dari kedua pihak. Pelanggaran berat dapat berakibat akun dinonaktifkan."
+      ]
+    },
+    {
+      "judul": "15. Batas tanggung jawab",
+      "isi": [
+        "Pengelola tidak menjamin kualitas, keaslian, atau kesesuaian barang yang dijual penjual. Tanggung jawab Pengelola terbatas pada dana yang sedang ditahan untuk pesanan QRIS.",
+        "Pengelola tidak bertanggung jawab atas kerugian akibat transaksi di luar website, termasuk transfer langsung ke penjual.",
+        "Layanan dapat terganggu karena gangguan teknis atau hal di luar kendali Pengelola."
+      ]
+    },
+    {
+      "judul": "16. Perubahan ketentuan",
+      "isi": [
+        "Pengelola dapat mengubah Syarat & Ketentuan ini. Versi terbaru selalu tersedia di website, dan perubahan penting diumumkan kepada pengguna."
+      ]
+    },
+    {
+      "judul": "17. Kontak",
+      "isi": [
+        "Pertanyaan tentang ketentuan ini dapat disampaikan lewat WhatsApp admin [nomor WhatsApp admin] atau email [email admin]."
+      ]
+    }
+  ],
+  "privasi": [
+    {
+      "judul": "1. Siapa kami",
+      "isi": [
+        "Kebijakan ini menjelaskan bagaimana RE:LOOP, yang dikelola oleh [nama tim dan penanggung jawab], mengumpulkan, memakai, dan melindungi data pribadimu, sesuai Undang-Undang Nomor 27 Tahun 2022 tentang Pelindungan Data Pribadi."
+      ]
+    },
+    {
+      "judul": "2. Data yang kami kumpulkan",
+      "isi": [
+        "Data akun: email dan password. Password disimpan dalam bentuk terenkripsi oleh layanan Firebase dan tidak bisa dilihat Pengelola.",
+        "Data identitas: nama lengkap, NPM, prodi, angkatan, dan foto KTM untuk verifikasi.",
+        "Data kontak: nomor WhatsApp.",
+        "Data penjual: rekening atau e-wallet untuk pencairan dana.",
+        "Data transaksi: barang yang diiklankan beserta fotonya, tawaran nego, isi keranjang, pesanan, jadwal temu, catatan, bukti bayar QRIS, dan ulasan.",
+        "Pengaturan di perangkatmu, misalnya pilihan bunyi notifikasi, disimpan di browser dan tidak dikirim ke server."
+      ]
+    },
+    {
+      "judul": "3. Untuk apa data dipakai",
+      "isi": [
+        "Memastikan pengguna adalah mahasiswa FISIP Unpas Kampus Lengkong.",
+        "Menjalankan jual-beli: menampilkan iklan, nego, pesanan, jadwal temu, dan chat WhatsApp.",
+        "Memproses pembayaran QRIS, pencairan dana, dan pencatatan komisi.",
+        "Mencatat utang komisi COD dan pola pembatalan atau penghapusan barang untuk mencegah penyalahgunaan.",
+        "Menjaga keamanan dan menyelesaikan sengketa.",
+        "Memperbaiki layanan dengan statistik gabungan yang tidak menunjukkan identitas perorangan."
+      ]
+    },
+    {
+      "judul": "4. Dasar pemrosesan",
+      "isi": [
+        "Data diproses berdasarkan persetujuanmu saat mendaftar dan untuk menjalankan transaksi yang kamu lakukan di website."
+      ]
+    },
+    {
+      "judul": "5. Siapa yang bisa melihat datamu",
+      "isi": [
+        "Semua pengunjung: foto dan detail barang, nama penjual, dan prodinya.",
+        "Mahasiswa terverifikasi: angkatan, jumlah barang terjual, dan rating penjual.",
+        "Lawan transaksi: nama, detail pesanan, dan nomor WhatsApp. Nomor WhatsApp hanya dibagikan kepada pembeli dan penjual setelah pesanan dibuat.",
+        "Admin: NPM, nomor WhatsApp, foto KTM (sampai diverifikasi), rekening pencairan, bukti bayar, serta catatan utang komisi dan penandaan akun.",
+        "Kami tidak menjual atau menyewakan data pribadimu kepada pihak mana pun."
+      ]
+    },
+    {
+      "judul": "6. Layanan pihak ketiga",
+      "isi": [
+        "Google Firebase untuk akun dan database, serta Netlify untuk hosting, server, dan penyimpanan foto. Sebagian data dapat disimpan di server di luar Indonesia.",
+        "WhatsApp hanya dipakai saat kamu menekan tombol chat. Percakapan di WhatsApp tunduk pada kebijakan WhatsApp.",
+        "Bank atau penerbit QRIS memproses pembayaranmu sesuai kebijakan masing-masing."
+      ]
+    },
+    {
+      "judul": "7. Berapa lama data disimpan",
+      "isi": [
+        "Foto KTM dihapus segera setelah akun disetujui atau ditolak.",
+        "Data akun disimpan selama akun aktif.",
+        "Data pesanan, pembayaran, dan bukti bayar disimpan selama diperlukan untuk penyelesaian sengketa dan pencatatan keuangan, paling lama [jangka waktu, misalnya 12 bulan] setelah pesanan selesai.",
+        "Kalau kamu meminta akun dihapus, data dihapus paling lambat 14 hari, kecuali data transaksi yang masih wajib disimpan untuk pencatatan keuangan."
+      ]
+    },
+    {
+      "judul": "8. Keamanan",
+      "isi": [
+        "Akses data dibatasi dengan aturan keamanan database, sehingga setiap pengguna hanya bisa membaca data yang memang boleh dilihatnya.",
+        "Kunci server disimpan terpisah dan tidak dipublikasikan, walaupun kode website bersifat open source.",
+        "Tidak ada sistem yang sepenuhnya aman. Gunakan password yang kuat dan jangan membagikannya."
+      ]
+    },
+    {
+      "judul": "9. Hakmu",
+      "isi": [
+        "Kamu berhak meminta akses ke datamu, memperbaiki data yang salah, menghapus akun dan data, menarik persetujuan, serta mengajukan keberatan atas pemrosesan data. Ajukan lewat WhatsApp admin [nomor WhatsApp admin] atau email [email admin]."
+      ]
+    },
+    {
+      "judul": "10. Jika terjadi kebocoran data",
+      "isi": [
+        "Kalau terjadi kegagalan pelindungan data pribadi, kami akan memberi tahu pengguna yang terdampak paling lambat 3x24 jam sejak mengetahuinya, beserta langkah yang diambil."
+      ]
+    },
+    {
+      "judul": "11. Perubahan kebijakan",
+      "isi": [
+        "Kebijakan ini dapat diperbarui. Versi terbaru selalu tersedia di website, dan perubahan penting diumumkan kepada pengguna."
+      ]
+    },
+    {
+      "judul": "12. Kontak",
+      "isi": [
+        "Pertanyaan tentang privasi dapat disampaikan lewat WhatsApp admin [nomor WhatsApp admin] atau email [email admin]."
+      ]
+    }
+  ]
+}

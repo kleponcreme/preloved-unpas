@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { APP } from '../config';
 import { useAuth } from '../services/auth';
 import { useProduk, useProfil, useTawaranSaya, useIsiKeranjang } from '../services/hooks';
-import { tambahKeKeranjang, kirimTawaran, jawabHargaBalik } from '../services/api';
+import { tambahKeKeranjang, kirimTawaran, jawabHargaBalik, aturPaket } from '../services/api';
 import { hargaEfektif, tawaranTerakhir } from '../lib/harga';
 import { rp, angka, formatRibuan } from '../lib/format';
 import { pesanError } from '../lib/errors';
@@ -13,7 +13,6 @@ import ProductMedia from '../components/ProductMedia';
 import Avatar from '../components/Avatar';
 import Sheet from '../components/Sheet';
 import Loading from '../components/Loading';
-import WhatsAppSheet from '../components/WhatsAppSheet';
 import { Icon } from '../components/Icons';
 import { useToast } from '../components/Toast';
 import NotFound from './NotFound';
@@ -23,7 +22,7 @@ export default function DetailProduk() {
   const navigate = useNavigate();
   const location = useLocation();
   const toast = useToast();
-  const { user, akun, terverifikasi } = useAuth();
+  const { user, akun, terverifikasi, admin } = useAuth();
   const { data: p, loading } = useProduk(id);
   const tawaranSaya = useTawaranSaya().data;
   const keranjang = useIsiKeranjang().data;
@@ -88,6 +87,8 @@ export default function DetailProduk() {
             {p.usiaPakai && <span className="pill">{p.usiaPakai}</span>}
             <span className="pill">Stok {p.stok}</span>
             <span className="pill">{p.kategori}</span>
+            <span className="pill">{p.bolehCod === false ? 'Bayar: QRIS saja' : 'Bayar: QRIS atau COD'}</span>
+            {p.paket && <span className="pill k">Paket Maba FISIP</span>}
           </div>
           {tawaran && <TawaranBox tawaran={tawaran} />}
         </section>
@@ -115,8 +116,16 @@ export default function DetailProduk() {
             )}
           </div>
           <div className="note b" style={{ marginTop: 14 }}>
-            <Icon.Pin /><span>COD di <b>{APP.titikTemu}</b>, atau antar ke kos {rp(APP.ongkirAntar)}.</span>
+            <Icon.Pin /><span>Serah terima di <b>{APP.titikTemu}</b>, atau antar ke kos {rp(APP.ongkirAntar)}.</span>
           </div>
+          <div className="note y" style={{ marginTop: 10 }}>
+            <Icon.Wa /><span>Nomor WhatsApp penjual muncul setelah pesanan dibuat. Sebelum itu, tanya harga lewat fitur <b>Nego</b>.</span>
+          </div>
+          {admin && !milikSaya && p.status === 'tayang' && (
+            <button className="btn sm ghost" style={{ marginTop: 10 }} onClick={async () => { await aturPaket(p.id, !p.paket); toast(p.paket ? 'Dikeluarkan dari Paket Maba' : 'Dimasukkan ke Paket Maba'); }}>
+              {p.paket ? 'Admin: keluarkan dari Paket Maba' : 'Admin: masukkan ke Paket Maba'}
+            </button>
+          )}
         </section>
         <div style={{ height: 12 }} />
       </main>
@@ -128,7 +137,6 @@ export default function DetailProduk() {
         </div>
       ) : (
         <div className="actionbar">
-          <button className="btn sq waout" onClick={() => perluAkun(() => setSheet('wa'))} aria-label="Chat penjual di WhatsApp"><Icon.Wa /></button>
           {p.bisaNego && (
             <button className="btn ghost grow" onClick={() => perluAkun(() => setSheet('nego'))} disabled={habis || negoAktif}>Nego</button>
           )}
@@ -139,15 +147,6 @@ export default function DetailProduk() {
       )}
 
       {sheet === 'nego' && <NegoSheet produk={p} namaPembeli={akun?.nama ?? ''} onClose={() => setSheet(null)} />}
-      {sheet === 'wa' && (
-        <WhatsAppSheet
-          nama={p.penjualNama}
-          nomor={profilPenjual?.whatsapp}
-          pesanAwal={`Halo Kak ${(p.penjualNama || '').split(' ')[0]}, saya ${akun?.nama ?? ''} (${akun?.prodi ?? 'FISIP'}) dari Preloved Unpas. Saya tertarik dengan ${p.judul} (${rp(harga)}). Apakah masih tersedia? Bisa COD di ${APP.titikTemu}?`}
-          catatan="Tetap aman: selesaikan pembayaran lewat checkout Preloved agar dilindungi rekber. Jangan transfer langsung ke rekening penjual."
-          onClose={() => setSheet(null)}
-        />
-      )}
     </>
   );
 }

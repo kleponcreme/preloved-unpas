@@ -1,6 +1,6 @@
 // Berjalan otomatis tiap 5 menit (Netlify Scheduled Function).
 // Membatalkan pembayaran yang lewat batas waktu dan belum mengirim bukti.
-import { db, batalkanPembayaran, bacaUntukBatal } from './_firebase.mjs';
+import { db, batalkanPembayaran, bacaUntukBatal, evaluasiTangguh } from './_firebase.mjs';
 
 export default async () => {
   const q = await db.collection('payments').where('status', '==', 'menunggu_bayar').get();
@@ -14,7 +14,13 @@ export default async () => {
       batalkanPembayaran(tx, d.ref, pay, orders, products, 'kedaluwarsa');
     });
   }
-  return new Response(`Dibatalkan: ${lewat.length}`);
+  // Periksa penjual yang punya utang komisi COD (batas nominal dan 7 hari)
+  const utang = await db.collection('orders').where('metodeBayar', '==', 'cod').where('status', '==', 'selesai').where('komisiLunas', '==', false).get();
+  const penjual = new Set(utang.docs.map((d) => d.data().penjualId));
+  const ditangguhkan = await db.collection('users').where('ditangguhkan', '==', true).get();
+  ditangguhkan.docs.forEach((d) => penjual.add(d.id));
+  for (const id of penjual) await evaluasiTangguh(id);
+  return new Response(`Dibatalkan: ${lewat.length}, penjual dicek: ${penjual.size}`);
 };
 
 export const config = { schedule: '*/5 * * * *' };
