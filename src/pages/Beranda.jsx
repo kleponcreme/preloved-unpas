@@ -25,7 +25,7 @@ export default function Beranda() {
       <header className="top">
         <div className="brand">
           <Icon.Logo />
-          <div><b>RE:LOOP</b><small>FISIP UNPAS</small></div>
+          <div><b>RE:LOOP</b><small>PRELOVED FISIP</small></div>
           {user ? (
             <span className="scope"><Icon.Shield />Khusus mahasiswa<br />{APP.cakupan}</span>
           ) : (

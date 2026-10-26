@@ -106,7 +106,7 @@ export default function DetailProduk() {
             <div className="grow">
               <b>{p.penjualNama}</b>
               <div className="meta">{p.penjualProdi}{profilPenjual?.angkatan ? ` · ${profilPenjual.angkatan}` : ''}</div>
-              <div className="verified"><Icon.Shield />Terverifikasi FISIP Unpas</div>
+              <div className="verified"><Icon.Shield />Mahasiswa FISIP terverifikasi</div>
             </div>
             {profilPenjual && (
               <div style={{ textAlign: 'right' }}>

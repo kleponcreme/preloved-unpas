@@ -88,7 +88,7 @@ export default function DetailPesanan() {
           {o.status === 'cod' && sayaPenjual && (
             <div className="note y"><span>Pembeli akan membayar <b>{rp(totalBarang)}</b> tunai saat bertemu. {o.jadwalDikonfirmasi ? 'Bawa barang sesuai jadwal.' : 'Konfirmasi jadwal dulu.'}</span></div>
           )}
-          {o.status === 'selesai' && <div className="note g"><Icon.Check /><span><b>Transaksi selesai.</b> {sayaPenjual ? (cod ? 'Pembayaran tunai sudah kamu terima.' : 'Dana bisa dicairkan dari Lapak saya.') : 'Terima kasih sudah belanja sesama warga Unpas!'}</span></div>}
+          {o.status === 'selesai' && <div className="note g"><Icon.Check /><span><b>Transaksi selesai.</b> {sayaPenjual ? (cod ? 'Pembayaran tunai sudah kamu terima.' : 'Dana bisa dicairkan dari Lapak saya.') : 'Terima kasih sudah belanja sesama mahasiswa FISIP!'}</span></div>}
           {o.status === 'batal' && <div className="note no"><span>Pesanan dibatalkan. Barang kembali tersedia di katalog.</span></div>}
 
           {o.status !== 'batal' && (
