@@ -8,6 +8,9 @@ service cloud.firestore {
       return signedIn() &&
         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.statusVerifikasi == 'terverifikasi';
     }
+    function akunSaya() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
     function onlyChanges(keys) {
       return request.resource.data.diff(resource.data).affectedKeys().hasOnly(keys);
     }
@@ -19,10 +22,10 @@ service cloud.firestore {
         && request.resource.data.statusVerifikasi == 'menunggu';
       allow update: if isAdmin()
         || (request.auth.uid == uid
-            && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['statusVerifikasi', 'npm', 'promoDipakai']));
+            && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['statusVerifikasi', 'npm', 'promoDipakai', 'ditangguhkan', 'utangKomisi', 'utangSejak', 'risiko', 'ditandai']));
     }
 
-    // Profil yang dilihat sesama mahasiswa terverifikasi (termasuk nomor WhatsApp)
+    // Profil yang dilihat sesama mahasiswa terverifikasi (nomor WhatsApp TIDAK di sini, hanya di pesanan)
     match /profiles/{uid} {
       allow read: if request.auth.uid == uid || verified() || isAdmin();
       // Rating dan jumlah terjual hanya diubah server
@@ -43,18 +46,26 @@ service cloud.firestore {
       allow read: if resource.data.status == 'tayang' || isAdmin()
         || (signedIn() && resource.data.penjualId == request.auth.uid);
       allow create: if verified()
+        && akunSaya().get('ditangguhkan', false) != true
         && request.resource.data.penjualId == request.auth.uid
         && request.resource.data.status == 'moderasi'
+        && request.resource.data.get('paket', false) == false
         && request.resource.data.harga is int && request.resource.data.harga > 0
         && request.resource.data.stok is int && request.resource.data.stok > 0;
-      // Penjual boleh mengedit barangnya sendiri (kecuali stok); status hanya boleh kembali ke moderasi
+      // Penjual boleh mengedit barangnya sendiri (kecuali stok dan status Paket Maba);
+      // status hanya boleh kembali ke moderasi, dan tidak saat barang disembunyikan karena utang komisi
       allow update: if isAdmin()
         || (verified() && resource.data.penjualId == request.auth.uid
-            && resource.data.status != 'terjual'
-            && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['penjualId', 'stok'])
+            && !(resource.data.status in ['terjual', 'disembunyikan'])
+            && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['penjualId', 'stok', 'paket', 'terakhirDiminati'])
             && (request.resource.data.status == resource.data.status || request.resource.data.status == 'moderasi')
-            && request.resource.data.harga is int && request.resource.data.harga > 0);
-      allow delete: if isAdmin() || (signedIn() && resource.data.penjualId == request.auth.uid);
+            && request.resource.data.harga is int && request.resource.data.harga > 0)
+        // Pembeli menandai barang sedang diminati saat memasukkannya ke keranjang
+        || (verified() && resource.data.penjualId != request.auth.uid
+            && onlyChanges(['terakhirDiminati'])
+            && request.resource.data.terakhirDiminati == request.time);
+      // Penghapusan lewat server (fungsi hapus-barang) supaya bisa dicatat
+      allow delete: if isAdmin();
     }
 
     match /offers/{id} {

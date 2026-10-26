@@ -1,8 +1,8 @@
-# Preloved Unpas · FISIP Lengkong
+# RE:LOOP (Preloved FISIP Unpas) · FISIP Lengkong
 
 Marketplace barang bekas open source khusus mahasiswa FISIP Universitas Pasundan, Kampus Lengkong. Mahasiswa bisa menjadi pembeli sekaligus penjual: katalog, nego harga, chat WhatsApp, keranjang, checkout dengan **QRIS ke admin (rekber)** atau **COD tunai**, status pesanan, ulasan, Lapak penjual, dan halaman admin.
 
-**Panduan lengkap menayangkan dan memakai website ada di dokumen "Panduan Preloved Unpas".** Ringkasannya di bawah.
+**Panduan lengkap menayangkan dan memakai website ada di dokumen "Panduan RE:LOOP (Preloved FISIP Unpas)".** Ringkasannya di bawah.
 
 ## Yang dibutuhkan
 
